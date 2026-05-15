@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Sidebar from '../../components/Sidebar.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getCollection } from 'astro:content';
+
+// src/pages/[lang]/index.astro
+export async function getStaticPaths() {
+  return [
+    { params: { lang: 'hu' } },
+    { params: { lang: 'en' } },
+  ];
+}
+const { lang } = Astro.params;
+
+const allPosts = await getCollection('blog');
+if (!allPosts || allPosts.length === 0) {
+  console.warn("A 'blog' gyűjtemény üres!");
+}
+const posts = (await getCollection('blog'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+
+
+---
+
+<BaseLayout title="Főoldal | Dr. Proff Név">
+  <div class="max-w-6xl mx-auto px-6 py-12 flex flex-col md:flex-row gap-16">
+    <Sidebar />
+    
+    <main class="flex-1">
+      <h2 class="text-3xl font-bold mb-8 border-b pb-4">Legutóbbi Blogbejegyzések</h2>
+      
+      <div class="flex flex-col">
+        {posts.map(post => (
+          <PostCard 
+            title={post.data.title}
+            date={post.data.pubDate}
+            excerpt={post.data.description}
+            url={`/blog/${post.id}`}
+          />
+        ))}
+      </div>
+    </main>
+  </div>
+</BaseLayout>

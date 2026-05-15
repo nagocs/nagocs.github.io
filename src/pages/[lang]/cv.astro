@@ -1,0 +1,118 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CVSection from '../../components/CVSection.astro';
+import SkillRating from '../../components/SkillRating.astro';
+import { getLangFromUrl, useTranslations } from '../../i18n/utils';
+import { cvHu, cvEn } from '../../i18n/ui'; // Importáld a CV objektumokat
+
+export async function getStaticPaths() {
+  return [{ params: { lang: 'hu' } }, { params: { lang: 'en' } }];
+}
+
+const lang = getLangFromUrl(Astro.url);
+const cv = lang === 'hu' ? cvHu : cvEn;
+---
+
+<BaseLayout title={cv.title}>
+  <div class="max-w-4xl mx-auto py-8 font-serif">
+    <header class="mb-12 text-center">
+      <h1 class="text-4xl font-extrabold mb-2 uppercase tracking-tighter">
+        Dr. Név / Academic CV
+      </h1>
+      <p class="text-slate-500 italic">Szenior Kutató & Egyetemi Adjunktus</p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+      <div class="md:col-span-1 space-y-8">
+        <CVSection title="Képességek">
+          {cv.skills.map((skill) => <SkillRating {...skill} />)}
+        </CVSection>
+
+        <CVSection title="Oktatás Számokban">
+          <div class="grid grid-cols-2 gap-4">
+            {
+              cv.teaching.stats.map((stat) => (
+                <div class="text-center p-3 bg-slate-50 rounded-lg">
+                  <div class="text-2xl font-bold text-blue-600">
+                    {stat.value}
+                  </div>
+                  <div class="text-[10px] uppercase text-slate-500">
+                    {stat.label}
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        </CVSection>
+
+        <CVSection title="Díjak">
+          <ul class="text-sm space-y-3">
+            {
+              cv.awards.map((award) => (
+                <li class="flex gap-3">
+                  <span class="font-bold text-slate-400">{award.year}</span>
+                  <span>{award.name}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </CVSection>
+      </div>
+
+      <div class="md:col-span-2 space-y-10">
+        <CVSection title="Szakmai Tapasztalat">
+          {
+            cv.experience.map((exp) => (
+              <div class="mb-6">
+                <div class="flex justify-between items-baseline mb-1">
+                  <h3 class="font-bold text-slate-900">{exp.position}</h3>
+                  <span class="text-sm text-slate-500 tabular-nums">
+                    {exp.period}
+                  </span>
+                </div>
+                <p class="text-blue-700 text-sm font-medium mb-2">
+                  {exp.workplace}
+                </p>
+                <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
+                  {exp.details.map((detail) => (
+                    <li>{detail}</li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          }
+        </CVSection>
+
+        <CVSection title="Tanulmányok">
+          {
+            cv.education.map((edu) => (
+              <div class="mb-4">
+                <div class="flex justify-between items-baseline">
+                  <h3 class="font-bold text-slate-900">{edu.degree}</h3>
+                  <span class="text-sm text-slate-500 tabular-nums">
+                    {edu.period}
+                  </span>
+                </div>
+                <p class="text-slate-700 text-sm italic">{edu.institution}</p>
+              </div>
+            ))
+          }
+        </CVSection>
+
+        <CVSection title="Kutatás & Projektek">
+          <p class="text-sm text-slate-700 mb-4 leading-relaxed">
+            {cv.research.summary}
+          </p>
+          <div class="bg-blue-50 p-4 border-l-4 border-blue-600">
+            <h4 class="text-xs font-bold uppercase mb-2">
+              Kutatói Ösztöndíjak:
+            </h4>
+            <ul class="text-xs space-y-1 italic text-slate-600">
+              {cv.research.grants.map((grant) => <li>• {grant}</li>)}
+            </ul>
+          </div>
+        </CVSection>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

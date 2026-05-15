@@ -1,0 +1,32 @@
+---
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+const navLinks = [
+  { name: t('nav.publications'), href: `/${lang}/publications` },
+  { name: t('nav.blog'), href: `/${lang}/blog` },
+  { name: t('nav.cv'), href: `/${lang}/cv` },
+];
+---
+
+<header class="border-b bg-white sticky top-0 z-50">
+  <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+    <a
+      href={`/${lang}/`}
+      class="font-bold text-lg border-b-2 border-black pb-1"
+    >
+      Home
+    </a>
+    <nav class="hidden lg:flex items-center space-x-6 text-sm text-slate-600">
+      {
+        navLinks.map((link) => (
+          <a href={link.href} class="hover:text-black transition-colors">
+            {link.name}
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+</header>
