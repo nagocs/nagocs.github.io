@@ -1,0 +1,17 @@
+---
+// src/pages/index.astro
+// Ez a fájl kizárólag a statikus build során fut le, és legenerálja a gyökér index.html-t
+
+import { defaultLang } from '../i18n/ui';
+---
+
+<head>
+  <meta http-equiv="refresh" content={`0;url=/${defaultLang}/`} />
+  <script define:vars={{ defaultLang }}>
+    // Kliensoldali azonnali átirányítás a szebb felhasználói élményért
+    window.location.pathname = `/${defaultLang}/`;
+  </script>
+</head>
+<body>
+  <p>Átirányítás... / Redirecting...</p>
+</body>
