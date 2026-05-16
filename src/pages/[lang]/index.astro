@@ -1,46 +1,93 @@
 ---
+// src/pages/[lang]/index.astro (Frontmatter részlet)
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Sidebar from '../../components/Sidebar.astro';
 import PostCard from '../../components/PostCard.astro';
-import { getCollection } from 'astro:content';
+// Beimportáljuk a 'render' funkciót az astro:content-ből
+import { getCollection, getEntry, render } from 'astro:content';
+import { getLangFromUrl, useTranslations } from '../../i18n/utils';
 
-// src/pages/[lang]/index.astro
 export async function getStaticPaths() {
-  return [
-    { params: { lang: 'hu' } },
-    { params: { lang: 'en' } },
-  ];
+  return [{ params: { lang: 'hu' } }, { params: { lang: 'en' } }];
 }
-const { lang } = Astro.params;
 
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+// 1. Az aktuális nyelvnek megfelelő bejegyzés lekérése a modern Content Layerből
+const aboutEntry = await getEntry('about', lang);
+
+// 2. Renderelés a modern API segítségével: az entry-t átadjuk a render() függvénynek
+const { Content: AboutContent } = aboutEntry
+  ? await render(aboutEntry)
+  : { Content: null };
+
+// 3. Blogbejegyzések lekérése és kezelése
 const allPosts = await getCollection('blog');
-if (!allPosts || allPosts.length === 0) {
-  console.warn("A 'blog' gyűjtemény üres!");
-}
-const posts = (await getCollection('blog'))
+const recentPosts = allPosts
+  .filter((post) => post.data.lang === lang)
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
   .slice(0, 3);
-
-
 ---
 
-<BaseLayout title="Főoldal | Dr. Proff Név">
+<BaseLayout title={lang === 'hu' ? 'Főoldal' : 'Home'}>
   <div class="max-w-6xl mx-auto px-6 py-12 flex flex-col md:flex-row gap-16">
     <Sidebar />
-    
-    <main class="flex-1">
-      <h2 class="text-3xl font-bold mb-8 border-b pb-4">Legutóbbi Blogbejegyzések</h2>
-      
+
+    <main class="flex-1 min-w-0">
+      {
+        /* A HTML struktúra és a komponens meghívása teljesen változatlan marad */
+      }
+      {
+        AboutContent && (
+          <section class="mb-12  pb-10 border-slate-100">
+            <h2 class="text-3xl font-bold mb-6 text-slate-900 tracking-tight">
+              {t('home.about_title')}
+            </h2>
+            <div class="prose prose-slate max-w-none text-slate-700 leading-relaxed text-md prose-strong:text-slate-900">
+              <AboutContent />
+            </div>
+          </section>
+        )
+      }
+
+      <h2 class="text-3xl font-bold mb-8 border-b pb-4 text-slate-900">
+        {t('home.recent_posts')}
+      </h2>
+
       <div class="flex flex-col">
-        {posts.map(post => (
-          <PostCard 
-            title={post.data.title}
-            date={post.data.pubDate}
-            excerpt={post.data.description}
-            url={`/blog/${post.id}`}
-          />
-        ))}
+        {
+          recentPosts.map((post) => {
+            // Tiszta slug kinyerése a kiterjesztés és az útvonal levágásával
+            const cleanSlug = post.id
+              .split('/')
+              .pop()
+              ?.replace(/\.(md|mdx)$/, '');
+            // Precíz, i18n-konform URL generálása
+            const postUrl = `/${lang}/blog/${cleanSlug}`;
+
+            return (
+              <PostCard
+                title={post.data.title}
+                date={post.data.pubDate}
+                excerpt={post.data.description}
+                url={postUrl}
+              />
+            );
+          })
+        }
       </div>
+
+      {
+        recentPosts.length > 0 && (
+          <a
+            href={`/${lang}/blog`}
+            class="inline-block mt-8 text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+          >
+            {t('home.view_all')}
+          </a>
+        )
+      }
     </main>
   </div>
 </BaseLayout>

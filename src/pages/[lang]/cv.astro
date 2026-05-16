@@ -6,10 +6,6 @@ import SkillRating from '../../components/SkillRating.astro';
 import { cvTranslations, cvLabels } from '../../i18n/cvData';
 import { getLangFromUrl } from '../../i18n/utils';
 
-import fs from 'node:fs';
-import path from 'node:path';
-import bibtexParse from 'bibtex-parse-js';
-
 export async function getStaticPaths() {
   return [{ params: { lang: 'hu' } }, { params: { lang: 'en' } }];
 }
@@ -17,17 +13,6 @@ export async function getStaticPaths() {
 const lang = getLangFromUrl(Astro.url);
 const cv = cvTranslations[lang];
 const labels = cvLabels[lang];
-
-let publications = [];
-try {
-  const bibFilePath = path.resolve('./src/data/publications.bib');
-  const bibContent = fs.readFileSync(bibFilePath, 'utf-8');
-  publications = bibtexParse.toJSON(bibContent);
-} catch (error) {
-  console.warn('BibTeX file could not be loaded or parsed:', error);
-}
-
-const cleanBibText = (text: string) => (text ? text.replace(/[{}]/g, '') : '');
 ---
 
 <BaseLayout title={`${cv.personal.title}`}>
@@ -76,93 +61,19 @@ const cleanBibText = (text: string) => (text ? text.replace(/[{}]/g, '') : '');
             {cv.research.summary}
           </p>
 
-          {
-            /* Publikációs Lista - Folyóiratok és Konferenciák (Proceedings) kezelésével */
-          }
-          {
-            publications.length > 0 && (
-              <div class="space-y-4">
-                <h4 class="text-lg font-bold text-slate-900 tracking-tight">
-                  {labels.publications}
-                </h4>
-                <ol class="list-decimal list-outside pl-5 space-y-3 text-sm text-slate-700">
-                  {publications.map(
-                    (pub: {
-                      entryType: string;
-                      entryTags: {
-                        author: string;
-                        title: string;
-                        year: string;
-                        doi: string;
-                        journal: string;
-                        booktitle: any;
-                        series: any;
-                        volume: string;
-                        pages: string;
-                      };
-                    }) => {
-                      const entryType = pub.entryType.toLowerCase();
-                      const authors = cleanBibText(pub.entryTags.author);
-                      const title = cleanBibText(pub.entryTags.title);
-                      const year = cleanBibText(pub.entryTags.year);
-                      const doi = pub.entryTags.doi
-                        ? cleanBibText(pub.entryTags.doi)
-                        : null;
-
-                      // Intelligens forrás-meghatározás bejegyzéstípus alapján
-                      let sourceVenue = '';
-                      if (entryType === 'article') {
-                        sourceVenue = cleanBibText(pub.entryTags.journal);
-                      } else if (
-                        entryType === 'inproceedings' ||
-                        entryType === 'proceedings'
-                      ) {
-                        sourceVenue = cleanBibText(
-                          pub.entryTags.booktitle || pub.entryTags.series,
-                        );
-                      }
-
-                      const volume = cleanBibText(pub.entryTags.volume);
-                      const pages = cleanBibText(pub.entryTags.pages);
-
-                      return (
-                        <li class="pl-1 leading-relaxed">
-                          <span class="font-medium text-slate-900">
-                            {authors}
-                          </span>
-                          : <span class="italic">"{title}"</span>.{' '}
-                          {/* Ha konferencia cikk, explicit jelezzük a szövegben, ha szükséges */}
-                          {sourceVenue && (
-                            <span>
-                              In:{' '}
-                              <span class="font-semibold">{sourceVenue}</span>
-                              ,{' '}
-                            </span>
-                          )}
-                          {volume && <span>Vol. {volume}, </span>}
-                          {pages && <span>pp. {pages}, </span>}
-                          <span class="tabular-nums text-slate-500">
-                            {year}.
-                          </span>
-                          {/* Opcionális DOI linkelés az akadémiai pontosságért */}
-                          {doi && (
-                            <a
-                              href={`https://doi.org/${doi}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              class="text-xs text-blue-650 ml-1 hover:underline block sm:inline whitespace-nowrap"
-                            >
-                              DOI: {doi}
-                            </a>
-                          )}
-                        </li>
-                      );
-                    },
-                  )}
-                </ol>
-              </div>
-            )
-          }
+          {/* Publikációk navigációs link */}
+          <div class="py-2">
+            <h4 class="text-lg font-bold text-slate-900 tracking-tight mb-2">
+              {labels.publications}
+            </h4>
+            <a
+              href={`/${lang}/publications`}
+              class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+            >
+              {labels.view_publications}
+              <span class="ml-1">→</span>
+            </a>
+          </div>
 
           {/* Ösztöndíjak szekció */}
           <div class="space-y-4">
@@ -233,7 +144,7 @@ const cleanBibText = (text: string) => (text ? text.replace(/[{}]/g, '') : '');
                   {block.organization}
                 </h4>
 
-                {/* Pozíciók listázása a szervezeten belül */}
+                {/* Pozíciók listázása a szervezeten binnen */}
                 {block.roles.length > 0 ? (
                   <div class="space-y-6 mt-4 pl-4">
                     {block.roles.map((role) => (

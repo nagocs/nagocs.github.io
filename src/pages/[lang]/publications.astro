@@ -1,0 +1,163 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import bibtexParse from 'bibtex-parse-js';
+
+// Keretrendszer és globális elrendezés importálása
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Sidebar from '../../components/Sidebar.astro';
+
+// Lokalizációs és nyelvkezelő utility-k
+import { getLangFromUrl, useTranslations } from '../../i18n/utils';
+import { cvLabels } from '../../i18n/cvData';
+
+export async function getStaticPaths() {
+  return [{ params: { lang: 'hu' } }, { params: { lang: 'en' } }];
+}
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const labels = cvLabels[lang];
+
+// BibTeX állomány betöltése és parszolása build-időben
+let publications = [];
+try {
+  const bibFilePath = path.resolve('./src/data/publications.bib');
+  const bibContent = fs.readFileSync(bibFilePath, 'utf-8');
+  publications = bibtexParse.toJSON(bibContent);
+} catch (error) {
+  console.error('Hiba a BibTeX fájl beolvasása vagy parszolása közben:', error);
+}
+
+// Szövegtisztító segédfüggvény a BibTeX-ből származó kapcsos zárójelek {} eltávolítására
+const clean = (text: string) => (text ? text.replace(/[{}]/g, '').trim() : '');
+---
+
+<BaseLayout title={`${labels.publications} | Norbert Agócs`}>
+  <div class="max-w-6xl mx-auto px-6 py-12 flex flex-col md:flex-row gap-16">
+    <div class="md:w-64 flex-shrink-0">
+      <div class="md:sticky md:top-24">
+        <Sidebar />
+      </div>
+    </div>
+
+    <main class="flex-1 max-w-3xl min-w-0">
+      <div class="mb-8 border-b pb-4">
+        <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">
+          {labels.publications}
+        </h2>
+      </div>
+
+      {
+        publications.length > 0 ? (
+          <ol class="list-none pl-0 space-y-6 text-md text-slate-700">
+            {publications.map(
+              (pub: { entryType: string; entryTags: any }, index: any) => {
+                const type = pub.entryType.toLowerCase();
+                const tags = pub.entryTags;
+
+                const authors = clean(tags.author);
+                const title = clean(tags.title);
+                const year = clean(tags.year);
+                // Dinamikus link prioritás: DOI ha van, egyébként URL
+                const targetUrl = tags.doi
+                  ? `https://doi.org/${clean(tags.doi)}`
+                  : tags.url
+                    ? clean(tags.url)
+                    : null;
+
+                return (
+                  <li class="flex items-start gap-3 leading-relaxed border-b border-slate-50 pb-4 last:border-b-0">
+                    {/* Egyedi, szögletes zárójeles sorszám tabular-nums-szal az igazításért */}
+                    <span class="font-mono text-slate-500 tabular-nums flex-shrink-0 min-w-[1.75rem]">
+                      [{index + 1}]
+                    </span>
+
+                    <div>
+                      {/* Szerzők listája */}
+                      <span class="font-semibold text-slate-900">
+                        {authors}
+                      </span>
+                      <span class="text-slate-400"> ({year}). </span>
+
+                      {/* Cím dinamikus linkeléssel */}
+                      {targetUrl ? (
+                        <a
+                          href={targetUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="font-medium text-slate-900 hover:text-blue-600 hover:underline transition-colors"
+                        >
+                          "{title}"
+                        </a>
+                      ) : (
+                        <span class="font-medium text-slate-900">
+                          "{title}"
+                        </span>
+                      )}
+                      <span>. </span>
+
+                      {/* Típus-specifikus akadémiai formázási logika (DRY) */}
+                      {type === 'article' && (
+                        <span class="text-sm text-slate-700">
+                          In:{' '}
+                          <span class="italic font-medium">
+                            {clean(tags.journal)}
+                          </span>
+                          {tags.volume && (
+                            <span>, Vol. {clean(tags.volume)}</span>
+                          )}
+                          {tags.number && (
+                            <span>, No. {clean(tags.number)}</span>
+                          )}
+                          {tags.pages && <span>, pp. {clean(tags.pages)}</span>}
+                        </span>
+                      )}
+
+                      {type === 'book' && (
+                        <span class="text-sm text-slate-700">
+                          <span class="italic">{clean(tags.publisher)}</span>
+                          {tags.address && <span>, {clean(tags.address)}</span>}
+                          {tags.isbn && (
+                            <span class="text-xs text-slate-500 block mt-1">
+                              ISBN: {clean(tags.isbn)}
+                            </span>
+                          )}
+                        </span>
+                      )}
+
+                      {type === 'inproceedings' && (
+                        <span class="text-sm text-slate-700">
+                          In:{' '}
+                          <span class="italic font-medium">
+                            {clean(tags.booktitle)}
+                          </span>
+                          {tags.series && <span>, {clean(tags.series)}</span>}
+                          {tags.venue && <span>, {clean(tags.venue)}</span>}
+                          {tags.pages && <span>, pp. {clean(tags.pages)}</span>}
+                        </span>
+                      )}
+
+                      {/* Explicit DOI jelölés ha a link onnan származik */}
+                      {tags.doi && (
+                        <span class="block text-xs text-slate-400 font-mono mt-1 select-all">
+                          DOI: {clean(tags.doi)}
+                        </span>
+                      )}
+                    </div>
+                  </li>
+                );
+              },
+            )}
+          </ol>
+        ) : (
+          <p class="text-slate-500 italic py-4">
+            {lang === 'hu'
+              ? 'Nincsenek elérhető publikációk.'
+              : 'No publications available.'}
+          </p>
+        )
+      }
+    </main>
+  </div>
+</BaseLayout>

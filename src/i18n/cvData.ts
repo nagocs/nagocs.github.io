@@ -49,6 +49,7 @@ export const cvLabels = {
     teaching: 'Oktatás',
     awards: 'Díjak & Kitüntetések',
     skills: 'Készségek',
+    view_publications: 'Teljes publikációs lista megtekintése →',
   },
   en: {
     education: 'Education',
@@ -59,6 +60,7 @@ export const cvLabels = {
     teaching: 'Teaching',
     awards: 'Awards & Honors',
     skills: 'Skills',
+    view_publications: 'View full list of publications →',
   },
 };
 

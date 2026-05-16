@@ -12,21 +12,118 @@ const navLinks = [
 ---
 
 <header class="border-b bg-white sticky top-0 z-50">
-  <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+  <div
+    class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between relative"
+  >
     <a
       href={`/${lang}/`}
-      class="font-bold text-lg border-b-2 border-black pb-1"
+      class="font-bold text-lg border-b-2 border-black pb-1 z-50 shrink-0"
     >
       Home
     </a>
-    <nav class="hidden lg:flex items-center space-x-6 text-sm text-slate-600">
+
+    <nav class="hidden md:flex items-center space-x-6 text-sm text-slate-600">
       {
         navLinks.map((link) => (
-          <a href={link.href} class="hover:text-black transition-colors">
+          <a
+            href={link.href}
+            class="hover:text-black transition-colors font-medium whitespace-nowrap"
+          >
             {link.name}
           </a>
         ))
       }
     </nav>
+
+    <button
+      id="menu-toggle"
+      class="md:hidden flex flex-col justify-center items-center w-8 h-8 space-y-1.5 z-50 focus:outline-none group"
+      aria-label="Toggle Menu"
+      aria-expanded="false"
+    >
+      <span
+        class="w-6 h-0.5 bg-slate-800 transition-all duration-300 ease-in-out origin-center id-bar-1"
+      ></span>
+      <span
+        class="w-6 h-0.5 bg-slate-800 transition-all duration-300 ease-in-out origin-center id-bar-2"
+      ></span>
+      <span
+        class="w-6 h-0.5 bg-slate-800 transition-all duration-300 ease-in-out origin-center id-bar-3"
+      ></span>
+    </button>
+
+    <div
+      id="mobile-menu"
+      class="absolute top-full left-0 w-full bg-white border-b shadow-lg md:hidden transition-all duration-300 ease-in-out opacity-0 pointer-events-none -translate-y-2 z-40"
+    >
+      <nav
+        class="flex flex-col px-6 py-6 space-y-4 text-md font-medium text-slate-700"
+      >
+        {
+          navLinks.map((link) => (
+            <a
+              href={link.href}
+              class="hover:text-black py-2 border-b border-slate-50 last:border-0 transition-colors"
+            >
+              {link.name}
+            </a>
+          ))
+        }
+      </nav>
+    </div>
   </div>
 </header>
+
+<script>
+  const menuToggle = document.getElementById('menu-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const bar1 = document.querySelector('.id-bar-1');
+  const bar2 = document.querySelector('.id-bar-2');
+  const bar3 = document.querySelector('.id-bar-3');
+
+  if (menuToggle && mobileMenu && bar1 && bar2 && bar3) {
+    let isOpen = false;
+
+    menuToggle.addEventListener('click', () => {
+      isOpen = !isOpen;
+      menuToggle.setAttribute('aria-expanded', isOpen.toString());
+
+      if (isOpen) {
+        mobileMenu.classList.remove(
+          'opacity-0',
+          'pointer-events-none',
+          '-translate-y-2',
+        );
+        mobileMenu.classList.add(
+          'opacity-100',
+          'pointer-events-auto',
+          'translate-y-0',
+        );
+        bar1.classList.add('translate-y-2', 'rotate-45');
+        bar2.classList.add('opacity-0', 'scale-0');
+        bar3.classList.add('-translate-y-2', '-rotate-44');
+      } else {
+        mobileMenu.classList.remove(
+          'opacity-100',
+          'pointer-events-auto',
+          'translate-y-0',
+        );
+        mobileMenu.classList.add(
+          'opacity-0',
+          'pointer-events-none',
+          '-translate-y-2',
+        );
+        bar1.classList.remove('translate-y-2', 'rotate-45');
+        bar2.classList.remove('opacity-0', 'scale-0');
+        bar3.classList.remove('-translate-y-2', '-rotate-44');
+      }
+    });
+
+    // Ha a felhasználó átméretezi a kijelzőt a mobil töréspont fölé, alaphelyzetbe állítjuk a menüt
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 768 && isOpen) {
+        menuToggle.click();
+      }
+    });
+  }
+</script>

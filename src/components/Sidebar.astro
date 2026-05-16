@@ -1,14 +1,5 @@
 ---
-import {
-  MapPin,
-  GraduationCap,
-  Mail,
-  GraduationCap as Scholar,
-  Fingerprint,
-  Activity,
-  Github,
-  Linkedin,
-} from 'lucide-astro';
+import { MapPin, GraduationCap, Mail, Github, Linkedin } from 'lucide-astro';
 import { getLangFromUrl, useTranslations } from '../i18n/utils';
 import { contactLinks } from '../i18n/ui';
 
@@ -16,10 +7,26 @@ const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 ---
 
-<aside class="w-full md:w-64 space-y-6">
-  <div class="space-y-4">
+{
+  /* A fő konténer mobilon nem használ space-y-6-ot, mert a belső elemek flex-row-ban lesznek.
+  md:breakpoint felett visszaáll az eredeti szélesség és a függőleges térköz.
+*/
+}
+<aside class="w-full md:w-64 flex flex-col gap-6 md:gap-6">
+  {
+    /* Profil szekció: 
+    Mobilon vízszintes elrendezés (flex-row), tökéletesen igazítva.
+    md: nézetben visszaáll függőleges struktúrává.
+  */
+  }
+  <div
+    class="flex flex-row md:flex-col items-center md:items-start gap-4 md:gap-4 w-full"
+  >
+    {
+      /* Profilkép konténer: mobilon kompakt w-20 h-20, asztali gépen az eredeti w-48 h-48 */
+    }
     <div
-      class="w-48 h-48 bg-slate-200 rounded-full mx-auto md:mx-0 overflow-hidden border border-slate-100"
+      class="w-20 h-20 md:w-48 md:h-48 bg-slate-200 rounded-full flex-shrink-0 overflow-hidden border border-slate-100"
     >
       <img
         src="/avatar.png"
@@ -27,46 +34,63 @@ const t = useTranslations(lang);
         class="w-full h-full object-cover"
       />
     </div>
-    <div class="text-center md:text-left">
-      <h2 class="text-2xl font-bold text-slate-900">{t('sidebar.name')}</h2>
-      <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+
+    {
+      /* Név és biográfia: mobilon balra zárt és rugalmasan kitölti a teret a kép mellett */
+    }
+    <div class="text-left md:text-left flex-1 min-w-0">
+      <h2
+        class="text-xl md:text-2xl font-bold text-slate-900 truncate md:whitespace-normal"
+      >
+        {t('sidebar.name')}
+      </h2>
+      <p class="text-sm text-slate-600 mt-1 md:mt-2 leading-relaxed">
         {t('sidebar.bio')}
       </p>
     </div>
   </div>
 
-  <div class="space-y-3 text-sm border-t border-slate-100 pt-6 text-slate-700">
-    <div class="flex items-center gap-3">
-      <MapPin size={18} class="text-slate-400" />
+  {
+    /* Elérhetőségek blokk:
+    Mobilon flex-wrap segítségével egyetlen tördelhető sort alkot (gap-x-5 gap-y-2), 
+    így ha nem fér ki egy sorba, elegánsan törik, de nem nyújtja meg az oldalt.
+    md: felett visszaáll a space-y-3 függőleges struktúra.
+  */
+  }
+  <div
+    class="flex flex-row flex-wrap md:flex-col gap-x-5 gap-y-2 md:space-y-3 text-sm border-t border-slate-100 pt-4 md:pt-6 text-slate-700 w-full"
+  >
+    <div class="flex items-center gap-3 whitespace-nowrap">
+      <MapPin size={18} class="text-slate-400 flex-shrink-0" />
       {t('sidebar.location')}
     </div>
-    <div class="flex items-center gap-3">
-      <GraduationCap size={18} class="text-slate-400" />
+    <div class="flex items-center gap-3 whitespace-nowrap">
+      <GraduationCap size={18} class="text-slate-400 flex-shrink-0" />
       {t('sidebar.institution')}
     </div>
     <a
       href={`mailto:${t('sidebar.email')}`}
-      class="flex items-center gap-3 hover:text-blue-600 transition-colors"
+      class="flex items-center gap-3 hover:text-blue-600 transition-colors whitespace-nowrap"
     >
-      <Mail size={18} class="text-slate-400" />
+      <Mail size={18} class="text-slate-400 flex-shrink-0" />
       {t('sidebar.email')}
     </a>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-3 whitespace-nowrap">
       <a
         href={contactLinks.github}
         target="_blank"
         class="flex items-center gap-3 hover:text-blue-600 transition-colors"
       >
-        <Github size={18} class="text-slate-400" /> @nagocs
+        <Github size={18} class="text-slate-400 flex-shrink-0" /> @nagocs
       </a>
     </div>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-3 whitespace-nowrap">
       <a
         href={contactLinks.linkedIn}
         target="_blank"
         class="flex items-center gap-3 hover:text-blue-600 transition-colors"
       >
-        <Linkedin size={18} class="text-slate-400" /> in/nagocs
+        <Linkedin size={18} class="text-slate-400 flex-shrink-0" /> in/nagocs
       </a>
     </div>
   </div>

@@ -1,0 +1,276 @@
+---
+// src/components/Chatbot.astro
+// Tiszta kliensoldali Astro sziget struktúra Lucide ikonok beágyazásával inline SVG-ként a nulla JS dependency érdekében
+---
+
+<div class="fixed bottom-6 right-6 z-50 font-sans">
+  {/* 1. Lebegő körgomb (Trigger Button) */}
+  <button
+    id="chat-trigger"
+    class="bg-slate-900 text-white p-4 rounded-full shadow-xl hover:bg-slate-800 hover:scale-105 active:scale-95 transition-all duration-250 flex items-center justify-center group relative"
+    aria-label="Chatbot megnyitása"
+  >
+    {/* Hamburger/Message ikon */}
+    <svg
+      id="icon-open"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="transition-transform duration-300"
+      ><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+      ></path></svg
+    >
+    {/* Bezárás (X) ikon - alapértelmezetten rejtett */}
+    <svg
+      id="icon-close"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="absolute transition-transform duration-300 scale-0 opacity-0"
+      ><line x1="18" y1="6" x2="6" y2="18"></line><line
+        x1="6"
+        y1="6"
+        x2="18"
+        y2="18"></line></svg
+    >
+  </button>
+
+  {/* 2. Chat ablak (Alapértelmezetten rejtett és áttetsző) */}
+  <div
+    id="chat-window"
+    class="absolute bottom-18 right-0 w-[calc(100vw-2rem)] sm:w-96 h-[500px] bg-white rounded-2xl shadow-2xl border border-slate-100 flex flex-col overflow-hidden transition-all duration-300 ease-in-out opacity-0 translate-y-4 pointer-events-none"
+  >
+    {/* Ablak Fejléc */}
+    <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+      <div>
+        <h3 class="font-bold text-sm tracking-wide">Norbert AI Asszisztens</h3>
+        <p class="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
+          <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"
+          ></span> Online
+        </p>
+      </div>
+    </div>
+
+    {/* Üzenetek területe */}
+    <div
+      id="chat-messages"
+      class="flex-1 p-4 overflow-y-auto bg-slate-50 space-y-3 scrollbar-thin text-sm"
+    >
+      {/* Alapértelmezett üdvözlő üzenet */}
+      <div class="flex flex-col items-start max-w-[85%]">
+        <div
+          class="bg-white text-slate-800 px-4 py-2.5 rounded-2xl rounded-tl-none border border-slate-100 shadow-sm leading-relaxed"
+        >
+          Üdvözlöm! Agócs Norbert AI asszisztense vagyok. Kérdezzen bátran a
+          kutatásaimról, oktatott tantárgyaimról vagy az egyetemi közéleti
+          pályafutásomról!
+        </div>
+      </div>
+    </div>
+
+    {/* Gépelés indikátor (Typing Indicator) - Alapértelmezetten rejtett */}
+    <div id="typing-indicator" class="hidden px-4 py-2 bg-slate-50">
+      <div
+        class="bg-white text-slate-500 px-4 py-2 rounded-2xl rounded-tl-none border border-slate-100 shadow-sm inline-flex items-center gap-1 text-xs"
+      >
+        <span>AI gépel</span>
+        <span class="w-1 h-1 bg-slate-400 rounded-full animate-bounce delay-100"
+        ></span>
+        <span class="w-1 h-1 bg-slate-400 rounded-full animate-bounce delay-200"
+        ></span>
+        <span class="w-1 h-1 bg-slate-400 rounded-full animate-bounce delay-300"
+        ></span>
+      </div>
+    </div>
+
+    {/* Beviteli mező és küldés */}
+    <form
+      id="chat-form"
+      class="p-3 bg-white border-t border-slate-100 flex gap-2 items-center"
+    >
+      <input
+        type="text"
+        id="chat-input"
+        placeholder="Írja meg kérdését..."
+        autocomplete="off"
+        class="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-250 rounded-xl text-sm focus:outline-none focus:border-slate-900 focus:bg-white transition-all text-slate-800"
+      />
+      <button
+        type="submit"
+        class="bg-slate-900 text-white p-2.5 rounded-xl hover:bg-slate-800 active:scale-95 transition-all"
+        aria-label="Üzenet küldése"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          ><line x1="22" y1="2" x2="11" y2="13"></line><polygon
+            points="22 2 15 22 11 13 2 9 22 2"></polygon></svg
+        >
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Ide helyezd el a Cloudflare Worker-ed pontos, telepített URL címét
+  const WORKER_URL = 'http://localhost:8787';
+
+  const triggerBtn = document.getElementById('chat-trigger');
+  const chatWindow = document.getElementById('chat-window');
+  const iconOpen = document.getElementById('icon-open');
+  const iconClose = document.getElementById('icon-close');
+  const chatMessages = document.getElementById('chat-messages');
+  const chatForm = document.getElementById('chat-form') as HTMLFormElement;
+  const chatInput = document.getElementById('chat-input') as HTMLInputElement;
+  const typingIndicator = document.getElementById('typing-indicator');
+
+  let isWindowOpen = false;
+  // A beszélgetés előzményeinek lokális tárolása az i18n/kontextus megőrzéséhez
+  let chatHistory: { role: 'user' | 'assistant'; content: string }[] = [];
+
+  if (
+    triggerBtn &&
+    chatWindow &&
+    iconOpen &&
+    iconClose &&
+    chatMessages &&
+    chatForm &&
+    chatInput &&
+    typingIndicator
+  ) {
+    // 1. Ablak nyitás/zárás animáció kezelése
+    triggerBtn.addEventListener('click', () => {
+      isWindowOpen = !isWindowOpen;
+
+      if (isWindowOpen) {
+        chatWindow.classList.remove(
+          'opacity-0',
+          'translate-y-4',
+          'pointer-events-none',
+        );
+        chatWindow.classList.add(
+          'opacity-100',
+          'translate-y-0',
+          'pointer-events-auto',
+        );
+        iconOpen.classList.add('scale-0', 'opacity-0', 'rotate-90');
+        iconClose.classList.remove('scale-0', 'opacity-0');
+        iconClose.classList.add('scale-100', 'opacity-100', 'rotate-0');
+        setTimeout(() => chatInput.focus(), 150);
+      } else {
+        chatWindow.classList.remove(
+          'opacity-100',
+          'translate-y-0',
+          'pointer-events-auto',
+        );
+        chatWindow.classList.add(
+          'opacity-0',
+          'translate-y-4',
+          'pointer-events-none',
+        );
+        iconOpen.classList.remove('scale-0', 'opacity-0', 'rotate-90');
+        iconClose.classList.add('scale-0', 'opacity-0');
+        iconClose.classList.remove('scale-100', 'opacity-100');
+      }
+    });
+
+    // Segédfüggvény új üzenetbuborék DOM-hoz adásához és azonnali görgetéshez
+    const appendMessage = (role: 'user' | 'assistant', text: string) => {
+      const wrapper = document.createElement('div');
+      wrapper.className = `flex flex-col max-w-[85%] ${role === 'user' ? 'items-end ml-auto' : 'items-start'}`;
+
+      const bubble = document.createElement('div');
+      bubble.className =
+        role === 'user'
+          ? 'bg-slate-900 text-white px-4 py-2.5 rounded-2xl rounded-tr-none shadow-sm leading-relaxed'
+          : 'bg-white text-slate-800 px-4 py-2.5 rounded-2xl rounded-tl-none border border-slate-100 shadow-sm leading-relaxed';
+
+      bubble.textContent = text;
+      wrapper.appendChild(bubble);
+      chatMessages.appendChild(wrapper);
+
+      // Automatikus görgetés az ablak aljára
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    };
+
+    // 2. Üzenetküldés és API hívás kezelése
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const query = chatInput.value.trim();
+      if (!query) return;
+
+      // Input zárolása és ürítése a hálózati kérés alatt
+      chatInput.value = '';
+      chatInput.disabled = true;
+
+      // Felhasználói üzenet megjelenítése és mentése a memóriába
+      appendMessage('user', query);
+      chatHistory.push({ role: 'user', content: query });
+
+      // Gépelés indikátor megjelenítése
+      typingIndicator.classList.remove('hidden');
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      try {
+        // Aszinkron kérés indítása az Edge Proxy felé
+        const response = await fetch(WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: chatHistory }),
+        });
+
+        if (!response.ok) throw new Error('Network response was not ok');
+
+        // 1. Definiáljuk a válasz elvárt típusát a Worker kódja alapján
+        interface WorkerResponse {
+          reply?: {
+            content: string;
+            role: string;
+          };
+          error?: string;
+        }
+
+        // 2. Explicit kasztolással jelezzük a TypeScript-nek a bejövő adatszerkezetet
+        const data = (await response.json()) as WorkerResponse;
+
+        const aiReply =
+          data.reply?.content || 'Sajnálom, hiba történt a válaszadás során.';
+
+        // AI válasz megjelenítése és mentése
+        typingIndicator.classList.add('hidden');
+        appendMessage('assistant', aiReply);
+        chatHistory.push({ role: 'assistant', content: aiReply });
+      } catch (error) {
+        console.error('Chatbot API Error:', error);
+        typingIndicator.classList.add('hidden');
+        appendMessage(
+          'assistant',
+          'Sajnálom, átmeneti hálózati hiba lépett fel. Kérlek, próbáld meg újra később!',
+        );
+      } finally {
+        // Input felszabadítása
+        chatInput.disabled = false;
+        chatInput.focus();
+      }
+    });
+  }
+</script>

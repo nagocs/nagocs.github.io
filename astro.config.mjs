@@ -7,6 +7,8 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import astroMermaid from 'astro-mermaid';
 
+import cloudflare from '@astrojs/cloudflare';
+
 // https://astro.build/config
 export default defineConfig({
   // Az Astro integrációk listája
@@ -36,4 +38,6 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
+
+  output: 'static', // <--- Kényszerített statikus generálás
 });

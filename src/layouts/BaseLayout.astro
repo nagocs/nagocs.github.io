@@ -1,20 +1,32 @@
 ---
 import Header from '../components/Header.astro';
+import Chatbot from '../components/Chatbot.astro'; // Beimportálva a korábbi lépés alapján
 import '../styles/global.css';
 
-const { title = "Academic Portfolio" } = Astro.props;
+const { title = 'Academic Portfolio' } = Astro.props;
 ---
+
 <html lang="hu">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>{title}</title>
   </head>
-  <body class="bg-white text-slate-900 antialiased min-h-screen">
+  <body class="bg-white text-slate-900 antialiased min-h-screen relative">
+    {/* Globális fejléc és navigáció */}
     <Header />
 
-    <slot /> <footer class="max-w-6xl mx-auto px-6 py-12 border-t mt-12 text-sm text-slate-500">
+    {/* Az adott aloldal egyedi tartalma */}
+    <slot />
+
+    {/* Globális lábléc */}
+    <footer
+      class="max-w-6xl mx-auto px-6 py-12 border-t mt-12 text-sm text-slate-500"
+    >
       <p>© {new Date().getFullYear()} — Minden jog fenntartva.</p>
     </footer>
+
+    {/* AI Chatbot kliensoldali sziget */}
+    <Chatbot />
   </body>
 </html>
