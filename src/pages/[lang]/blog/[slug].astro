@@ -1,0 +1,35 @@
+---
+// src/pages/[lang]/blog/[slug].astro
+import { getCollection, render } from 'astro:content';
+import BlogPostLayout from '../../../layouts/BlogPostLayout.astro';
+
+export async function getStaticPaths() {
+  const blogEntries = await getCollection('blog');
+
+  return blogEntries.map((entry) => {
+    // A Content Layer a fájl relatív útvonalát adja vissza id-ként (pl. "hu/konstitiv-modell.mdx")
+    // Tisztítjuk az id-t, hogy megkapjuk a tiszta slug-ot a listázó oldal hivatkozásával szinkronban
+    const cleanSlug = entry.id
+      .split('/')
+      .pop()
+      ?.replace(/\.(md|mdx)$/, '');
+
+    return {
+      params: {
+        lang: entry.data.lang,
+        slug: cleanSlug,
+      },
+      props: { entry },
+    };
+  });
+}
+
+const { entry } = Astro.props;
+
+// Az Astro Content Layer új render() metódusa a tartalom és a komponensek kinyeréséhez
+const { Content } = await render(entry);
+---
+
+<BlogPostLayout frontmatter={entry.data}>
+  <Content />
+</BlogPostLayout>

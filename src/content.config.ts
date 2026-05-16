@@ -1,14 +1,17 @@
-import { defineCollection, z } from "astro:content";
-import { glob } from "astro/loaders"; // Importáld a modern loadert
+// src/content/config.ts
+import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders'; // A modern Content Layer Loader
 
 const blog = defineCollection({
-  // Az új API-hoz meg kell adni a loader-t
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/blog" }),
+  // A loader beolvassa az összes md és mdx fájlt a megadott báziskönyvtárból
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),
   schema: z.object({
     title: z.string(),
-    pubDate: z.coerce.date(), // A coerce segít, ha a YAML-ben stringként van a dátum
     description: z.string(),
-    category: z.string().default("blog-post"),
+    pubDate: z.coerce.date(), // Biztonságos dátum konverzió
+    category: z.string().default('blog-post'),
+    lang: z.enum(['hu', 'en']), // i18n nyelvi azonosító kötelezővé tétele
+    tags: z.array(z.string()).default([]),
   }),
 });
 

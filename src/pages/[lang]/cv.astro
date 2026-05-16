@@ -1,118 +1,305 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import Sidebar from '../../components/Sidebar.astro';
 import CVSection from '../../components/CVSection.astro';
 import SkillRating from '../../components/SkillRating.astro';
-import { getLangFromUrl, useTranslations } from '../../i18n/utils';
-import { cvHu, cvEn } from '../../i18n/ui'; // Importáld a CV objektumokat
+import { cvTranslations, cvLabels } from '../../i18n/cvData';
+import { getLangFromUrl } from '../../i18n/utils';
+
+import fs from 'node:fs';
+import path from 'node:path';
+import bibtexParse from 'bibtex-parse-js';
 
 export async function getStaticPaths() {
   return [{ params: { lang: 'hu' } }, { params: { lang: 'en' } }];
 }
 
 const lang = getLangFromUrl(Astro.url);
-const cv = lang === 'hu' ? cvHu : cvEn;
+const cv = cvTranslations[lang];
+const labels = cvLabels[lang];
+
+let publications = [];
+try {
+  const bibFilePath = path.resolve('./src/data/publications.bib');
+  const bibContent = fs.readFileSync(bibFilePath, 'utf-8');
+  publications = bibtexParse.toJSON(bibContent);
+} catch (error) {
+  console.warn('BibTeX file could not be loaded or parsed:', error);
+}
+
+const cleanBibText = (text: string) => (text ? text.replace(/[{}]/g, '') : '');
 ---
 
-<BaseLayout title={cv.title}>
-  <div class="max-w-4xl mx-auto py-8 font-serif">
-    <header class="mb-12 text-center">
-      <h1 class="text-4xl font-extrabold mb-2 uppercase tracking-tighter">
-        Dr. Név / Academic CV
-      </h1>
-      <p class="text-slate-500 italic">Szenior Kutató & Egyetemi Adjunktus</p>
-    </header>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
-      <div class="md:col-span-1 space-y-8">
-        <CVSection title="Képességek">
-          {cv.skills.map((skill) => <SkillRating {...skill} />)}
-        </CVSection>
-
-        <CVSection title="Oktatás Számokban">
-          <div class="grid grid-cols-2 gap-4">
-            {
-              cv.teaching.stats.map((stat) => (
-                <div class="text-center p-3 bg-slate-50 rounded-lg">
-                  <div class="text-2xl font-bold text-blue-600">
-                    {stat.value}
-                  </div>
-                  <div class="text-[10px] uppercase text-slate-500">
-                    {stat.label}
-                  </div>
-                </div>
-              ))
-            }
-          </div>
-        </CVSection>
-
-        <CVSection title="Díjak">
-          <ul class="text-sm space-y-3">
-            {
-              cv.awards.map((award) => (
-                <li class="flex gap-3">
-                  <span class="font-bold text-slate-400">{award.year}</span>
-                  <span>{award.name}</span>
-                </li>
-              ))
-            }
-          </ul>
-        </CVSection>
-      </div>
-
-      <div class="md:col-span-2 space-y-10">
-        <CVSection title="Szakmai Tapasztalat">
-          {
-            cv.experience.map((exp) => (
-              <div class="mb-6">
-                <div class="flex justify-between items-baseline mb-1">
-                  <h3 class="font-bold text-slate-900">{exp.position}</h3>
-                  <span class="text-sm text-slate-500 tabular-nums">
-                    {exp.period}
-                  </span>
-                </div>
-                <p class="text-blue-700 text-sm font-medium mb-2">
-                  {exp.workplace}
-                </p>
-                <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
-                  {exp.details.map((detail) => (
-                    <li>{detail}</li>
-                  ))}
-                </ul>
-              </div>
-            ))
-          }
-        </CVSection>
-
-        <CVSection title="Tanulmányok">
-          {
-            cv.education.map((edu) => (
-              <div class="mb-4">
-                <div class="flex justify-between items-baseline">
-                  <h3 class="font-bold text-slate-900">{edu.degree}</h3>
-                  <span class="text-sm text-slate-500 tabular-nums">
-                    {edu.period}
-                  </span>
-                </div>
-                <p class="text-slate-700 text-sm italic">{edu.institution}</p>
-              </div>
-            ))
-          }
-        </CVSection>
-
-        <CVSection title="Kutatás & Projektek">
-          <p class="text-sm text-slate-700 mb-4 leading-relaxed">
-            {cv.research.summary}
-          </p>
-          <div class="bg-blue-50 p-4 border-l-4 border-blue-600">
-            <h4 class="text-xs font-bold uppercase mb-2">
-              Kutatói Ösztöndíjak:
-            </h4>
-            <ul class="text-xs space-y-1 italic text-slate-600">
-              {cv.research.grants.map((grant) => <li>• {grant}</li>)}
-            </ul>
-          </div>
-        </CVSection>
+<BaseLayout title={`${cv.personal.title}`}>
+  <div class="max-w-6xl mx-auto px-6 py-12 flex flex-col md:flex-row gap-16">
+    <div class="md:w-64 flex-shrink-0">
+      <div class="md:sticky md:top-24">
+        <Sidebar />
       </div>
     </div>
+
+    <main class="flex-1 max-w-3xl">
+      <div class="mb-10">
+        <h2 class="text-4xl font-extrabold text-slate-900">
+          {cv.personal.title}
+        </h2>
+      </div>
+
+      <CVSection title={labels.education}>
+        {
+          cv.education.map((item) => (
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 sm:gap-6">
+              <div class="text-sm font-semibold text-slate-500 tabular-nums">
+                {item.period}
+              </div>
+              <div class="sm:col-span-3">
+                <h4 class="font-bold text-slate-900 text-lg leading-snug">
+                  {item.title}
+                </h4>
+                <p class="text-md text-slate-700 italic">{item.institution}</p>
+                {item.bullets && (
+                  <ul class="list-disc list-inside text-sm text-slate-600 mt-2 space-y-1">
+                    {item.bullets.map((b) => (
+                      <li>{b}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          ))
+        }
+      </CVSection>
+
+      <CVSection title={labels.research}>
+        <div class="space-y-8">
+          <p class="text-slate-700 leading-relaxed italic">
+            {cv.research.summary}
+          </p>
+
+          {
+            /* Publikációs Lista - Folyóiratok és Konferenciák (Proceedings) kezelésével */
+          }
+          {
+            publications.length > 0 && (
+              <div class="space-y-4">
+                <h4 class="text-lg font-bold text-slate-900 tracking-tight">
+                  {labels.publications}
+                </h4>
+                <ol class="list-decimal list-outside pl-5 space-y-3 text-sm text-slate-700">
+                  {publications.map(
+                    (pub: {
+                      entryType: string;
+                      entryTags: {
+                        author: string;
+                        title: string;
+                        year: string;
+                        doi: string;
+                        journal: string;
+                        booktitle: any;
+                        series: any;
+                        volume: string;
+                        pages: string;
+                      };
+                    }) => {
+                      const entryType = pub.entryType.toLowerCase();
+                      const authors = cleanBibText(pub.entryTags.author);
+                      const title = cleanBibText(pub.entryTags.title);
+                      const year = cleanBibText(pub.entryTags.year);
+                      const doi = pub.entryTags.doi
+                        ? cleanBibText(pub.entryTags.doi)
+                        : null;
+
+                      // Intelligens forrás-meghatározás bejegyzéstípus alapján
+                      let sourceVenue = '';
+                      if (entryType === 'article') {
+                        sourceVenue = cleanBibText(pub.entryTags.journal);
+                      } else if (
+                        entryType === 'inproceedings' ||
+                        entryType === 'proceedings'
+                      ) {
+                        sourceVenue = cleanBibText(
+                          pub.entryTags.booktitle || pub.entryTags.series,
+                        );
+                      }
+
+                      const volume = cleanBibText(pub.entryTags.volume);
+                      const pages = cleanBibText(pub.entryTags.pages);
+
+                      return (
+                        <li class="pl-1 leading-relaxed">
+                          <span class="font-medium text-slate-900">
+                            {authors}
+                          </span>
+                          : <span class="italic">"{title}"</span>.{' '}
+                          {/* Ha konferencia cikk, explicit jelezzük a szövegben, ha szükséges */}
+                          {sourceVenue && (
+                            <span>
+                              In:{' '}
+                              <span class="font-semibold">{sourceVenue}</span>
+                              ,{' '}
+                            </span>
+                          )}
+                          {volume && <span>Vol. {volume}, </span>}
+                          {pages && <span>pp. {pages}, </span>}
+                          <span class="tabular-nums text-slate-500">
+                            {year}.
+                          </span>
+                          {/* Opcionális DOI linkelés az akadémiai pontosságért */}
+                          {doi && (
+                            <a
+                              href={`https://doi.org/${doi}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              class="text-xs text-blue-650 ml-1 hover:underline block sm:inline whitespace-nowrap"
+                            >
+                              DOI: {doi}
+                            </a>
+                          )}
+                        </li>
+                      );
+                    },
+                  )}
+                </ol>
+              </div>
+            )
+          }
+
+          {/* Ösztöndíjak szekció */}
+          <div class="space-y-4">
+            <h4 class="text-lg font-bold text-slate-900 tracking-tight">
+              {labels.grants}
+            </h4>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-slate-100 text-sm">
+                <thead>
+                  <tr
+                    class="text-left text-xs font-semibold uppercase tracking-wider text-slate-400"
+                  >
+                    <th scope="col" class="py-3 pr-4 w-32"
+                      >{lang === 'hu' ? 'Időszak' : 'Period'}</th
+                    >
+                    <th scope="col" class="py-3 pl-4"
+                      >{lang === 'hu' ? 'Megnevezés' : 'Description'}</th
+                    >
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  {
+                    cv.research.grants.map((grant) => (
+                      <tr>
+                        <td class="py-3 pr-4 font-medium text-slate-400 tabular-nums whitespace-nowrap align-top">
+                          {grant.period}
+                        </td>
+                        <td class="py-3 pl-4 font-bold text-slate-900 align-top leading-snug">
+                          {grant.title}
+                        </td>
+                      </tr>
+                    ))
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </CVSection>
+
+      <CVSection title={labels.teaching}>
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          {
+            cv.teaching.stats.map((stat) => (
+              <div class="bg-slate-50 p-4 border rounded text-center">
+                <div class="text-2xl font-bold text-slate-900 tabular-nums">
+                  {stat.count}
+                </div>
+                <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">
+                  {stat.label}
+                </div>
+              </div>
+            ))
+          }
+        </div>
+        <ul class="list-disc list-inside text-sm text-slate-700 space-y-1">
+          {cv.teaching.courses.map((course) => <li>{course}</li>)}
+        </ul>
+      </CVSection>
+
+      <CVSection title={labels.activities}>
+        <div class="space-y-10">
+          {
+            cv.activities.map((block) => (
+              <div class="space-y-4">
+                {/* Szervezet neve kiemelve */}
+                <h4 class="text-xl font-bold text-slate-900 tracking-tight border-slate-900 pl-3">
+                  {block.organization}
+                </h4>
+
+                {/* Pozíciók listázása a szervezeten belül */}
+                {block.roles.length > 0 ? (
+                  <div class="space-y-6 mt-4 pl-4">
+                    {block.roles.map((role) => (
+                      <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 sm:gap-6">
+                        <div class="text-sm font-semibold text-slate-500 tabular-nums">
+                          {role.period}
+                        </div>
+                        <div class="sm:col-span-3">
+                          <h5 class="font-bold text-slate-850 text-md leading-snug">
+                            {role.title}
+                          </h5>
+                          {role.bullets && role.bullets.length > 0 && (
+                            <ul class="list-disc list-inside text-sm text-slate-600 mt-2 space-y-1">
+                              {role.bullets.map((b) => (
+                                <li>{b}</li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  /* Helyőrző állapot, ha az adott szervezetnél még nincs rögzített tevékenység */
+                  <p class="text-sm italic text-slate-400 pl-4">
+                    Nincs rögzített tevékenység / No recorded activities
+                  </p>
+                )}
+              </div>
+            ))
+          }
+        </div>
+      </CVSection>
+
+      <CVSection title={labels.awards}>
+        <div class="space-y-4">
+          {
+            cv.awards.map((award) => (
+              <div class="flex items-start gap-6 text-sm">
+                <span class="font-semibold text-slate-500 tabular-nums w-12">
+                  {award.year}
+                </span>
+                <div>
+                  <span class="font-bold text-slate-900">{award.title}</span> —
+                  <span class="text-slate-600 italic">{award.institution}</span>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </CVSection>
+
+      <CVSection title={labels.skills}>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {
+            cv.skills.map((skill) => (
+              <div class="flex items-center justify-between p-2 border-b border-slate-100">
+                <span class="text-sm font-medium text-slate-800">
+                  {skill.name}
+                </span>
+                <SkillRating level={skill.level} />
+              </div>
+            ))
+          }
+        </div>
+      </CVSection>
+    </main>
   </div>
 </BaseLayout>

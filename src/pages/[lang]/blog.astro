@@ -1,0 +1,106 @@
+---
+// src/pages/[lang]/blog.astro
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Sidebar from '../../components/Sidebar.astro';
+import { getLangFromUrl, useTranslations } from '../../i18n/utils';
+
+// 1. Az Astro megköveteli a getStaticPaths-t a [lang] alapú dinamikus útvonalakhoz
+export async function getStaticPaths() {
+  return [{ params: { lang: 'hu' } }, { params: { lang: 'en' } }];
+}
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+// 2. Beolvassuk az ÖSSZES blogbejegyzést a Content Layer segítségével
+const allPosts = await getCollection('blog');
+
+// 3. Szűrés az aktuális nyelvre ÉS rendezés csökkenő dátum szerint (pubDate garantáltan Date objektum)
+const filteredPosts = allPosts
+  .filter((post) => post.data.lang === lang)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+// Nyelvi címkék a listázó oldalhoz (beépítheted a központi i18n/cvData.ts vagy ui.ts fájlba is)
+const labels = {
+  hu: {
+    title: 'Blogbejegyzések',
+    empty: 'Még nincsenek bejegyzések ezen a nyelven.',
+  },
+  en: {
+    title: 'Blog Posts',
+    empty: 'No posts available in this language yet.',
+  },
+}[lang];
+---
+
+<BaseLayout title={`${labels.title} | Academic Website`}>
+  <div class="max-w-6xl mx-auto px-6 py-12 flex flex-col md:flex-row gap-16">
+    <div class="md:w-64 flex-shrink-0">
+      <div class="md:sticky md:top-24">
+        <Sidebar />
+      </div>
+    </div>
+
+    <main class="flex-1 max-w-3xl min-w-0">
+      <h1 class="text-3xl font-extrabold text-slate-900 mb-8 border-b pb-4">
+        {labels.title}
+      </h1>
+
+      {
+        filteredPosts.length === 0 ? (
+          <p class="text-slate-500 italic">{labels.empty}</p>
+        ) : (
+          <div class="space-y-10">
+            {filteredPosts.map((post) => {
+              // Lokalizált dátumformázás az iterált elem nyelvét követve
+              const postDate = post.data.pubDate.toLocaleDateString(
+                lang === 'hu' ? 'hu-HU' : 'en-US',
+                { year: 'numeric', month: 'long', day: 'numeric' },
+              );
+
+              return (
+                <article class="group border-b border-slate-100 pb-8 last:border-0 last:pb-0">
+                  <div class="flex items-center gap-3 text-xs text-slate-550 font-mono uppercase tracking-wider mb-2">
+                    <span class="tabular-nums">{postDate}</span>
+                    <span>•</span>
+                    <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-sm font-sans normal-case">
+                      {post.data.category}
+                    </span>
+                  </div>
+
+                  {/* Fontos: A linknél a post.id-t vagy a konfigurált útvonalat használjuk. 
+                    A Content Layer-ben a tiszta slug-ért érdemes az alábbi formát követni */}
+                  <h2 class="text-2xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors leading-snug">
+                    <a
+                      href={`/${lang}/blog/${post.id
+                        .split('/')
+                        .pop()
+                        ?.replace(/\.(md|mdx)$/, '')}`}
+                    >
+                      {post.data.title}
+                    </a>
+                  </h2>
+
+                  <p class="text-slate-600 mt-3 line-clamp-3 leading-relaxed text-sm">
+                    {post.data.description}
+                  </p>
+
+                  {post.data.tags.length > 0 && (
+                    <div class="flex flex-wrap gap-1.5 mt-4">
+                      {post.data.tags.map((tag) => (
+                        <span class="text-[11px] text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200/40">
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+        )
+      }
+    </main>
+  </div>
+</BaseLayout>

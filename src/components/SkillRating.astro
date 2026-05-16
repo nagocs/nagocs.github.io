@@ -1,22 +1,19 @@
 ---
 interface Props {
-  name: string;
-  level: number; // 1-6
+  level: 1 | 2 | 3 | 4 | 5 | 6;
 }
-
-const { name, level } = Astro.props;
-const maxLevel = 6;
+const { level } = Astro.props;
+const maxCircles = 6;
 ---
 
-<div class="flex items-center justify-between py-1">
-  <span class="text-sm font-medium text-slate-700">{name}</span>
-  <div class="flex gap-1">
-    {
-      Array.from({ length: maxLevel }).map((_, i) => (
-        <div
-          class={`w-2.5 h-2.5 rounded-full transition-colors ${i < level ? 'bg-blue-600' : 'bg-slate-200'}`}
-        />
-      ))
-    }
-  </div>
+<div class="flex gap-1.5" aria-label={`Szint: ${level} a 6-ból`}>
+  {
+    Array.from({ length: maxCircles }).map((_, index) => (
+      <span
+        class={`w-3 h-3 rounded-full border border-slate-950 transition-colors ${
+          index < level ? 'bg-slate-950' : 'bg-transparent'
+        }`}
+      />
+    ))
+  }
 </div>

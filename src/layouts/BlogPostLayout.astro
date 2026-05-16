@@ -1,0 +1,75 @@
+---
+// src/layouts/BlogPostLayout.astro
+import BaseLayout from './BaseLayout.astro';
+
+// KaTeX CSS a matematikai képletek helyes megjelenítéséhez
+import 'katex/dist/katex.min.css';
+
+interface Props {
+  frontmatter: {
+    title: string;
+    description: string;
+    pubDate: Date;
+    lang: 'hu' | 'en';
+    category: string;
+    tags: string[];
+  };
+}
+
+const { frontmatter } = Astro.props;
+
+// Lokalizált dátumformázás
+const formattedDate = frontmatter.pubDate.toLocaleDateString(
+  frontmatter.lang === 'hu' ? 'hu-HU' : 'en-US',
+  { year: 'numeric', month: 'long', day: 'numeric' },
+);
+---
+
+<BaseLayout title={frontmatter.title}>
+  <main class="max-w-3xl mx-auto px-6 py-12 min-w-0">
+    <article>
+      <header class="mb-8 pb-6 border-b border-slate-100">
+        <div
+          class="flex items-center gap-3 text-xs text-slate-550 font-mono uppercase tracking-wider mb-2"
+        >
+          <span class="tabular-nums">{formattedDate}</span>
+          <span>•</span>
+          <span
+            class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-sm font-sans normal-case"
+          >
+            {frontmatter.category}
+          </span>
+        </div>
+
+        <h1 class="text-4xl font-extrabold text-slate-900 leading-tight">
+          {frontmatter.title}
+        </h1>
+
+        <p class="text-md text-slate-600 mt-3 italic leading-relaxed">
+          {frontmatter.description}
+        </p>
+
+        {
+          frontmatter.tags.length > 0 && (
+            <div class="flex flex-wrap gap-2 mt-4">
+              {frontmatter.tags.map((tag) => (
+                <span class="text-xs bg-slate-50 text-slate-600 px-2.5 py-1 rounded border border-slate-200/60">
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )
+        }
+      </header>
+
+      {
+        /* Tipográfiai réteg a tudományos elemekhez (LaTeX, GFM táblázatok, Mermaid) */
+      }
+      <div
+        class="prose prose-slate max-w-none prose-headings:font-bold prose-a:text-blue-600 prose-table:shadow-sm prose-table:rounded-lg overflow-x-auto"
+      >
+        <slot />
+      </div>
+    </article>
+  </main>
+</BaseLayout>

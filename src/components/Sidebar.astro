@@ -1,35 +1,72 @@
 ---
-import { MapPin, GraduationCap, Mail, GraduationCap as Scholar, Fingerprint, Activity, Github, Cloud } from 'lucide-astro';
+import {
+  MapPin,
+  GraduationCap,
+  Mail,
+  GraduationCap as Scholar,
+  Fingerprint,
+  Activity,
+  Github,
+  Linkedin,
+} from 'lucide-astro';
 import { getLangFromUrl, useTranslations } from '../i18n/utils';
 import { contactLinks } from '../i18n/ui';
 
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 ---
+
 <aside class="w-full md:w-64 space-y-6">
   <div class="space-y-4">
-    <div class="w-48 h-48 bg-slate-200 rounded-full mx-auto md:mx-0 overflow-hidden border border-slate-100">
-      <img src="/avatar.png" alt={t('sidebar.name')} class="w-full h-full object-cover" />
+    <div
+      class="w-48 h-48 bg-slate-200 rounded-full mx-auto md:mx-0 overflow-hidden border border-slate-100"
+    >
+      <img
+        src="/avatar.png"
+        alt={t('sidebar.name')}
+        class="w-full h-full object-cover"
+      />
     </div>
     <div class="text-center md:text-left">
       <h2 class="text-2xl font-bold text-slate-900">{t('sidebar.name')}</h2>
-      <p class="text-sm text-slate-600 mt-2 leading-relaxed">{t('sidebar.bio')}</p>
+      <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+        {t('sidebar.bio')}
+      </p>
     </div>
   </div>
 
   <div class="space-y-3 text-sm border-t border-slate-100 pt-6 text-slate-700">
     <div class="flex items-center gap-3">
-      <MapPin size={18} class="text-slate-400" /> {t('sidebar.location')}
+      <MapPin size={18} class="text-slate-400" />
+      {t('sidebar.location')}
     </div>
     <div class="flex items-center gap-3">
-      <GraduationCap size={18} class="text-slate-400" /> {t('sidebar.institution')}
+      <GraduationCap size={18} class="text-slate-400" />
+      {t('sidebar.institution')}
     </div>
-    <a href={`mailto:${t('sidebar.email')}`} class="flex items-center gap-3 hover:text-blue-600 transition-colors">
-      <Mail size={18} class="text-slate-400" /> {t('sidebar.email')}
+    <a
+      href={`mailto:${t('sidebar.email')}`}
+      class="flex items-center gap-3 hover:text-blue-600 transition-colors"
+    >
+      <Mail size={18} class="text-slate-400" />
+      {t('sidebar.email')}
     </a>
     <div class="flex items-center gap-3">
-      <a href={contactLinks.github} target="_blank" class="flex items-center gap-3 hover:text-blue-600 transition-colors">
-        <Github size={18} class="text-slate-400" /> GitHub
+      <a
+        href={contactLinks.github}
+        target="_blank"
+        class="flex items-center gap-3 hover:text-blue-600 transition-colors"
+      >
+        <Github size={18} class="text-slate-400" /> @nagocs
+      </a>
+    </div>
+    <div class="flex items-center gap-3">
+      <a
+        href={contactLinks.linkedIn}
+        target="_blank"
+        class="flex items-center gap-3 hover:text-blue-600 transition-colors"
+      >
+        <Linkedin size={18} class="text-slate-400" /> in/nagocs
       </a>
     </div>
   </div>
