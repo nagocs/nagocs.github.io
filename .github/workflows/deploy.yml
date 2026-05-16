@@ -22,8 +22,7 @@ env:
 jobs:
   build:
     name: Build site
-    runs-edge: true
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # Ez a sor határozza meg a futtató környezetet, a hibás 'runs-edge' törlésre került
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
