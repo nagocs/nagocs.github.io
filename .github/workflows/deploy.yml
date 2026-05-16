@@ -21,22 +21,24 @@ env:
 
 jobs:
   build:
-    name: Build site
-    runs-on: ubuntu-latest # Ez a sor határozza meg a futtató környezetet, a hibás 'runs-edge' törlésre került
+    runs-on: ubuntu-latest
+    env:
+      # Kényszerítjük a GitHub Actionst a Node.js 24 használatára a figyelmeztetés szerint
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24 # Átállítás a legfrissebb Node.js verzióra
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Astro project
+      - name: Build Astro
         run: npm run build
 
       - name: Upload production-ready artifacts
