@@ -1,43 +1,39 @@
-# Astro Starter Kit: Minimal
+# Weboldal — Projekt README
 
-```sh
-npm create astro@latest -- --template minimal
+## Projekt Megnevezése & Rövid Leírás
+
+Ez a repository egy személyes/portfólió statikus weboldalának forráskódja, amely Astro alapú statikus webframeworkre épül. A projekt technológiai stackje: Astro, Tailwind CSS, TypeScript, és többnyelvűség (i18n) támogatás. A cél egy könnyen karbantartható, gyors és SEO-barát weboldal biztosítása kutatói/professzionális önéletrajz, publikációs lista és blog megjelenítéséhez.
+
+## Főbb Funkciók
+
+- Reszponzív felület: Header és Sidebar komponensek mobil- és desktopra optimalizálva.
+- Többnyelvű (i18n) tartalomkezelés: lokalizált szövegek és nyelvválasztó, fordítási szótárak használata.
+- CV oldal: karikás (radial/circular) skill-értékelő komponens a készségek vizuális megjelenítéséhez.
+- Publikációs lista: BibTeX feldolgozásból generált publikációs lista (BibTeX-to-JSON pipeline / collection).
+- Blog motor: Markdown/MDX alapú bejegyzések, KaTeX matematikai renderelés és Mermaid diagram-támogatás beépítve.
+- AI chatbot előkészítés: struktúrált előkészítés az AI chatbot integrációhoz (konfigurációs helyek, API-horgok), a tényleges üzembe helyezés opcióként elérhető.
+
+## Projekt Struktúra
+
+Fontosabb mappák és fájlok (sémás tree):
+
 ```
-
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
-
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
 /
-├── public/
+├── public/ # statikus erőforrások (képek, favicon)
 ├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+│ ├── content/ # tartalomgyűjtemények: blog, publications, cv
+│ ├── i18n/ # lokalizációs szótárak és konfiguráció
+│ ├── layouts/ # oldal- és post-layoutok
+│ ├── components/ # újrahasználható UI komponensek (Header, Sidebar, SkillCircle, PublicationList)
+│ └── pages/ # útvonalak: index.astro, cv.astro, publications.astro, blog/[slug].astro
+├── package.json
+├── astro.config.\* # Astro konfiguráció (integrációk, build beállítások)
+└── .github/workflows/ # GitHub Actions workflow a GitHub Pages deploy-hoz
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Futtatás
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+```
+npm run dev
+npx wrangler dev --remote
+```
