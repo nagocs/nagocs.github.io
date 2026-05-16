@@ -11,6 +11,7 @@ import cloudflare from '@astrojs/cloudflare';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://nagocs.github.io',
   // Az Astro integrációk listája
   integrations: [
     mdx(),
