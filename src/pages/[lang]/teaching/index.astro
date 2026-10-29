@@ -1,0 +1,81 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { languages, type Language } from '../../../i18n/ui';
+import { teachingUi } from '../../../i18n/teaching';
+import {
+  localize,
+  publishedCourses,
+  textLanguage,
+} from '../../../lib/teaching';
+
+export function getStaticPaths() {
+  return Object.keys(languages).map((lang) => ({ params: { lang } }));
+}
+const lang = Astro.params.lang as Language;
+const t = teachingUi[lang];
+const courses = publishedCourses(
+  (await getCollection('teaching')).map((entry) => entry.data),
+);
+---
+
+<BaseLayout title={t.title} description={t.intro}>
+  <main class="max-w-6xl mx-auto px-6 py-12 md:py-16">
+    <h1 class="text-4xl font-bold tracking-tight mb-4">{t.title}</h1>
+    <p class="text-lg text-slate-600 max-w-2xl">{t.intro}</p>
+    <p
+      class="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-5 text-sm leading-relaxed text-slate-600"
+    >
+      {t.access}
+    </p>
+    {
+      courses.length === 0 ? (
+        <p class="my-12 text-slate-600" data-teaching-empty>
+          {t.empty}
+        </p>
+      ) : (
+        <div class="grid gap-6 mt-10 md:grid-cols-2">
+          {courses.map((course) => (
+            <article
+              class="rounded-xl border border-slate-200 p-6 flex flex-col gap-4"
+              data-course-card
+            >
+              <h2
+                class="text-xl font-semibold"
+                lang={textLanguage(course.title, lang)}
+              >
+                <a
+                  href={`/${lang}/teaching/${course.slug}/`}
+                  class="hover:underline underline-offset-4"
+                >
+                  {localize(course.title, lang)}
+                </a>
+              </h2>
+              <p
+                class="text-slate-600"
+                lang={textLanguage(course.description, lang)}
+              >
+                {localize(course.description, lang)}
+              </p>
+              <p class="text-sm text-slate-500">
+                {course.sessions.length} {t.sessions} ·{' '}
+                {course.sessions.reduce(
+                  (count, session) => count + session.materials.length,
+                  0,
+                )}{' '}
+                {t.materials}
+              </p>
+              <a
+                href={`/${lang}/teaching/${course.slug}/`}
+                class="font-medium underline underline-offset-4 mt-auto"
+                aria-label={`${t.course}: ${localize(course.title, lang)}`}
+              >
+                {t.course} →
+              </a>
+            </article>
+          ))}
+        </div>
+      )
+    }
+  </main>
+</BaseLayout>

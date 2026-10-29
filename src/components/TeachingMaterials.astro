@@ -1,0 +1,127 @@
+---
+import type { Course } from '../lib/teaching-schema';
+import type { Language } from '../i18n/ui';
+import { localize, textLanguage } from '../lib/teaching';
+import { teachingUi, materialTypes } from '../i18n/teaching';
+
+interface Props {
+  course: Course;
+  lang: Language;
+}
+const { course, lang } = Astro.props;
+const t = teachingUi[lang];
+const number = new Intl.NumberFormat(lang === 'hu' ? 'hu-HU' : 'en-GB', {
+  maximumFractionDigits: 2,
+});
+const date = new Intl.DateTimeFormat(lang === 'hu' ? 'hu-HU' : 'en-GB', {
+  timeZone: 'UTC',
+});
+---
+
+<div class="mt-10">
+  {
+    course.sessions.length === 0 && (
+      <p class="py-8 text-slate-600">{t.noSessions}</p>
+    )
+  }
+  {
+    course.sessions.map((session) => (
+      <section
+        id={`session-${session.id}`}
+        class="mb-10 scroll-mt-24"
+        aria-labelledby={`heading-${session.id}`}
+      >
+        <h2
+          id={`heading-${session.id}`}
+          class="text-2xl font-semibold mb-3"
+          lang={textLanguage(session.title, lang)}
+        >
+          {localize(session.title, lang)}
+        </h2>
+        {session.description && (
+          <p
+            class="mb-5 text-slate-600"
+            lang={textLanguage(session.description, lang)}
+          >
+            {localize(session.description, lang)}
+          </p>
+        )}
+        {session.materials.length === 0 && (
+          <p class="text-sm text-slate-500">{t.noMaterials}</p>
+        )}
+        <div class="grid gap-4 md:grid-cols-2">
+          {session.materials.map((material) => (
+            <article
+              id={`material-${material.id}`}
+              class="rounded-xl border border-slate-200 p-5 flex flex-col gap-3 scroll-mt-24"
+            >
+              <div class="flex flex-wrap gap-2 text-xs font-medium">
+                <span class="rounded bg-slate-100 px-2 py-1">
+                  {materialTypes[material.type]}
+                </span>
+                {material.languages.map((language) => (
+                  <span
+                    class="rounded border border-slate-200 px-2 py-1"
+                    title={t.languages[language]}
+                    aria-label={t.languages[language]}
+                  >
+                    {language.toUpperCase()}
+                  </span>
+                ))}
+                <span
+                  class:list={[
+                    'rounded px-2 py-1',
+                    material.access === 'public'
+                      ? 'bg-emerald-50 text-emerald-800'
+                      : 'bg-amber-50 text-amber-900',
+                  ]}
+                >
+                  {t[material.access]}
+                </span>
+              </div>
+              <h3
+                class="text-lg font-semibold"
+                lang={textLanguage(material.title, lang)}
+              >
+                {localize(material.title, lang)}
+              </h3>
+              <p
+                class="text-sm leading-relaxed text-slate-600"
+                lang={textLanguage(material.description, lang)}
+              >
+                {localize(material.description, lang)}
+              </p>
+              <p class="text-xs text-slate-500">
+                {material.sizeBytes !== undefined && (
+                  <>{number.format(material.sizeBytes / 1_000_000)} MB · </>
+                )}
+                {t.updated}:{' '}
+                <time datetime={material.updated}>
+                  {date.format(new Date(`${material.updated}T00:00:00Z`))}
+                </time>
+              </p>
+              <a
+                href={material.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-material-link
+                class="text-sm font-medium underline underline-offset-4 mt-auto pt-2"
+                aria-label={`${localize(material.title, lang)} — ${t.newTab}`}
+              >
+                {material.type === 'github' ? t.repository : t.open} ↗{' '}
+                <span class="text-slate-500 font-normal">({t.newTab})</span>
+              </a>
+            </article>
+          ))}
+        </div>
+      </section>
+    ))
+  }
+</div>
+
+<style>
+  a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
+</style>

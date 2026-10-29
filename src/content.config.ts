@@ -1,6 +1,7 @@
 // src/content/config.ts
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { courseSchema } from './lib/teaching-schema';
 
 const blog = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),
@@ -10,6 +11,7 @@ const blog = defineCollection({
     pubDate: z.coerce.date(),
     category: z.string().default('blog-post'),
     lang: z.enum(['hu', 'en']),
+    translationKey: z.string().min(1).optional(),
     tags: z.array(z.string()).default([]),
   }),
 });
@@ -23,4 +25,9 @@ const about = defineCollection({
   }),
 });
 
-export const collections = { blog, about };
+const teaching = defineCollection({
+  loader: glob({ pattern: '**/*.json', base: './src/content/teaching' }),
+  schema: courseSchema,
+});
+
+export const collections = { blog, about, teaching };

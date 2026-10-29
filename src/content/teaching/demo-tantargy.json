@@ -1,0 +1,192 @@
+{
+  "slug": "demo-tantargy",
+  "title": {
+    "hu": "Mérnöki modellezés — demó tantárgy",
+    "en": "Engineering modelling — demo course"
+  },
+  "description": {
+    "hu": "Kizárólag a megjelenés kipróbálására szolgáló demó. A tananyagok, fájlméretek és hivatkozások fiktívek; a gombok mögött nincs valódi letölthető tananyag.",
+    "en": "A demo for exploring the layout. Materials, file sizes and links are fictional; the buttons do not lead to real downloadable learning materials."
+  },
+  "order": 0,
+  "draft": false,
+  "sessions": [
+    {
+      "id": "01-bevezetes",
+      "title": {
+        "hu": "1. alkalom — A modellezés alapjai",
+        "en": "Session 1 — Modelling fundamentals"
+      },
+      "description": {
+        "hu": "Fizikai modellek, feltevések és mértékegységek. A gyakorlathoz először a jegyzetet érdemes átnézni.",
+        "en": "Physical models, assumptions and units. Start with the lecture notes before working through the exercises."
+      },
+      "order": 1,
+      "materials": [
+        {
+          "id": "bevezeto-jegyzet",
+          "title": {
+            "hu": "Bevezető előadás és jegyzet",
+            "en": "Introductory lecture and notes"
+          },
+          "description": {
+            "hu": "A tantárgy áttekintése, a modellezés lépései és szemléltető mérnöki példák.",
+            "en": "Course overview, the modelling process and illustrative engineering examples."
+          },
+          "type": "pdf",
+          "languages": ["hu"],
+          "access": "university",
+          "url": "https://example.sharepoint.com/demo/bevezeto-jegyzet.pdf",
+          "sizeBytes": 2400000,
+          "updated": "2026-10-28"
+        },
+        {
+          "id": "python-elso-lepesek",
+          "title": {
+            "hu": "Első számítások Pythonban",
+            "en": "First calculations in Python"
+          },
+          "description": {
+            "hu": "Mértékegység-átváltás és egyszerű függvényábrázolás NumPy és Matplotlib használatával.",
+            "en": "Unit conversion and basic plotting with NumPy and Matplotlib."
+          },
+          "type": "python",
+          "languages": ["hu", "en"],
+          "access": "university",
+          "url": "https://example.sharepoint.com/demo/elso-lepesek.py",
+          "sizeBytes": 24000,
+          "updated": "2026-10-27"
+        },
+        {
+          "id": "modell-szemlelteto",
+          "title": {
+            "hu": "Modellek és feltevések — HTML-szemléltető",
+            "en": "Models and assumptions — HTML illustration"
+          },
+          "description": {
+            "hu": "Német nyelvű, letölthető HTML-csomag. Kicsomagolás után az index.html fájllal nyitható meg.",
+            "en": "A downloadable German-language HTML bundle. Extract the archive and open index.html."
+          },
+          "type": "html",
+          "languages": ["de"],
+          "access": "university",
+          "url": "https://example.sharepoint.com/demo/modellek-html.zip",
+          "sizeBytes": 1800000,
+          "updated": "2026-10-26"
+        }
+      ]
+    },
+    {
+      "id": "02-numerikus-modszerek",
+      "title": {
+        "hu": "2. alkalom — Numerikus módszerek",
+        "en": "Session 2 — Numerical methods"
+      },
+      "description": {
+        "hu": "Gyakorlófeladatok, bemeneti adatok és numerikus megoldások összehasonlítása.",
+        "en": "Practice exercises, input data and comparison of numerical solutions."
+      },
+      "order": 2,
+      "materials": [
+        {
+          "id": "numerikus-feladatsor",
+          "title": {
+            "hu": "Gyakorló feladatsor",
+            "en": "Practice problem sheet"
+          },
+          "description": {
+            "hu": "Gyökkeresés, numerikus integrálás és a számítási hiba becslése. Német nyelvű feladatlap.",
+            "en": "Root finding, numerical integration and error estimation. A German-language problem sheet."
+          },
+          "type": "pdf",
+          "languages": ["de"],
+          "access": "university",
+          "url": "https://example.sharepoint.com/demo/numerikus-feladatok.pdf",
+          "sizeBytes": 850000,
+          "updated": "2026-10-25"
+        },
+        {
+          "id": "numerikus-adatcsomag",
+          "title": {
+            "hu": "Mérési adatok és segédletek",
+            "en": "Measurement data and resources"
+          },
+          "description": {
+            "hu": "Példa CSV-adatok, ábrák és angol nyelvű használati útmutató egy ZIP-csomagban.",
+            "en": "Example CSV data, figures and an English usage guide in a ZIP archive."
+          },
+          "type": "zip",
+          "languages": ["en"],
+          "access": "university",
+          "url": "https://example.sharepoint.com/demo/meresi-adatok.zip",
+          "sizeBytes": 4600000,
+          "updated": "2026-10-24"
+        },
+        {
+          "id": "nyilvanos-modszertan",
+          "title": {
+            "hu": "Rövid módszertani összefoglaló",
+            "en": "Quick methods reference"
+          },
+          "description": {
+            "hu": "Példa egy szabadon elérhető, angol nyelvű segédlet megjelenítésére.",
+            "en": "An example of how a publicly accessible English-language reference is displayed."
+          },
+          "type": "pdf",
+          "languages": ["en"],
+          "access": "public",
+          "url": "https://example.org/demo/methods-reference.pdf",
+          "sizeBytes": 520000,
+          "updated": "2026-10-23"
+        }
+      ]
+    },
+    {
+      "id": "03-dokumentacio",
+      "title": {
+        "hu": "3. alkalom — Eredmények dokumentálása",
+        "en": "Session 3 — Documenting results"
+      },
+      "description": {
+        "hu": "Jegyzőkönyv készítése LaTeX-ben és a forráskód rendezett megosztása.",
+        "en": "Preparing a report in LaTeX and sharing well-organised source code."
+      },
+      "order": 3,
+      "materials": [
+        {
+          "id": "latex-jegyzokonyv",
+          "title": {
+            "hu": "LaTeX jegyzőkönyvsablon",
+            "en": "LaTeX report template"
+          },
+          "description": {
+            "hu": "Magyar és angol sablon, példaábrák és fordítási útmutató. A csomag belépési pontja a main.tex.",
+            "en": "Hungarian and English templates, sample figures and compilation instructions. The entry point is main.tex."
+          },
+          "type": "latex",
+          "languages": ["hu", "en"],
+          "access": "university",
+          "url": "https://example.sharepoint.com/demo/latex-sablon.zip",
+          "sizeBytes": 1350000,
+          "updated": "2026-10-29"
+        },
+        {
+          "id": "github-forras",
+          "title": {
+            "hu": "A sablon GitHub-forrása",
+            "en": "Template source on GitHub"
+          },
+          "description": {
+            "hu": "Nyilvános repository-hivatkozás megjelenítési mintája. Ez is dummy link, nem valódi repository.",
+            "en": "A display example for a public repository link. This is also a dummy link, not a real repository."
+          },
+          "type": "github",
+          "languages": ["en"],
+          "access": "public",
+          "url": "https://example.org/demo/github-template",
+          "updated": "2026-10-29"
+        }
+      ]
+    }
+  ]
+}

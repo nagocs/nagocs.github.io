@@ -1,0 +1,56 @@
+{
+  "slug": "minta-tantargy",
+  "title": {
+    "hu": "Minta tantárgy — szerkesztési sablon",
+    "en": "Example course — editing template"
+  },
+  "description": {
+    "hu": "Másold le ezt a fájlt, majd töltsd ki valódi tantárgyi adatokkal. A draft miatt ez a minta nem jelenik meg a weboldalon.",
+    "en": "Copy this file and replace its contents with real course data. This draft is not published."
+  },
+  "order": 1,
+  "draft": true,
+  "sessions": [
+    {
+      "id": "01-bevezetes",
+      "title": {
+        "hu": "1. alkalom — Bevezetés",
+        "en": "Session 1 — Introduction"
+      },
+      "order": 1,
+      "materials": [
+        {
+          "id": "bevezeto-jegyzet",
+          "title": { "hu": "Bevezető jegyzet", "en": "Introductory notes" },
+          "description": {
+            "hu": "Cseréld a linket a saját SharePoint-fájlod hivatkozására.",
+            "en": "Replace the link with your own SharePoint file link."
+          },
+          "type": "pdf",
+          "languages": ["hu"],
+          "access": "university",
+          "url": "https://YOUR-TENANT.sharepoint.com/REPLACE-WITH-FILE-LINK",
+          "sizeBytes": 120000,
+          "updated": "2026-10-29"
+        },
+        {
+          "id": "html-csomag",
+          "title": {
+            "hu": "Letölthető HTML-csomag",
+            "en": "Downloadable HTML bundle"
+          },
+          "description": {
+            "hu": "ZIP: csomagold ki, majd nyisd meg az index.html fájlt. A példa német nyelvű anyagot jelöl.",
+            "en": "ZIP: extract it and open index.html. This example labels German-language material."
+          },
+          "type": "html",
+          "languages": ["de"],
+          "access": "university",
+          "url": "https://YOUR-TENANT.sharepoint.com/REPLACE-WITH-HTML-LINK",
+          "sizeBytes": 240000,
+          "updated": "2026-10-29"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { languages, type Language } from '../../../i18n/ui';
+import { teachingUi } from '../../../i18n/teaching';
+import {
+  localize,
+  publishedCourses,
+  textLanguage,
+} from '../../../lib/teaching';
+import type { Course } from '../../../lib/teaching-schema';
+import TeachingMaterials from '../../../components/TeachingMaterials.astro';
+
+export async function getStaticPaths() {
+  const courses = publishedCourses(
+    (await getCollection('teaching')).map((entry) => entry.data),
+  );
+  return courses.flatMap((course) =>
+    Object.keys(languages).map((lang) => ({
+      params: { lang, course: course.slug },
+      props: { course },
+    })),
+  );
+}
+interface Props {
+  course: Course;
+}
+const { course } = Astro.props;
+const lang = Astro.params.lang as Language;
+const t = teachingUi[lang];
+---
+
+<BaseLayout
+  title={`${localize(course.title, lang)} — ${t.title}`}
+  description={localize(course.description, lang)}
+>
+  <main class="max-w-6xl mx-auto px-6 py-12 md:py-16">
+    <a
+      href={`/${lang}/teaching/`}
+      class="text-sm text-slate-600 underline underline-offset-4">← {t.back}</a
+    >
+    <h1
+      class="text-3xl md:text-4xl font-bold tracking-tight mt-6 mb-4"
+      lang={textLanguage(course.title, lang)}
+    >
+      {localize(course.title, lang)}
+    </h1>
+    <p
+      class="text-lg text-slate-600 max-w-3xl"
+      lang={textLanguage(course.description, lang)}
+    >
+      {localize(course.description, lang)}
+    </p>
+    <p
+      class="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-5 text-sm leading-relaxed text-slate-600"
+    >
+      {t.access}
+    </p>
+    <TeachingMaterials course={course} lang={lang} />
+  </main>
+</BaseLayout>

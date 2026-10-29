@@ -41,6 +41,11 @@ jobs:
       - name: Build Astro
         run: npm run build
 
+      - name: Check routes and generated pages
+        run: |
+          npm test
+          npm run check:build
+
       - name: Upload production-ready artifacts
         uses: actions/upload-pages-artifact@v3
         with:

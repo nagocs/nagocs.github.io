@@ -5,13 +5,20 @@
 import { defaultLang } from '../i18n/ui';
 ---
 
-<head>
-  <meta http-equiv="refresh" content={`0;url=/${defaultLang}/`} />
-  <script define:vars={{ defaultLang }}>
-    // Kliensoldali azonnali átirányítás a szebb felhasználói élményért
-    window.location.pathname = `/${defaultLang}/`;
-  </script>
-</head>
-<body>
-  <p>Átirányítás... / Redirecting...</p>
-</body>
+<html lang={defaultLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Átirányítás / Redirecting</title>
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={new URL(`/${defaultLang}/`, Astro.site)} />
+    <meta http-equiv="refresh" content={`0;url=/${defaultLang}/`} />
+    <script define:vars={{ defaultLang }}>
+      // Kliensoldali azonnali átirányítás a szebb felhasználói élményért
+      window.location.pathname = `/${defaultLang}/`;
+    </script>
+  </head>
+  <body>
+    <p>Átirányítás... / Redirecting...</p>
+  </body>
+</html>

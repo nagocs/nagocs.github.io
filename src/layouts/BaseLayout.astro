@@ -1,20 +1,58 @@
 ---
 import Header from '../components/Header.astro';
-import Chatbot from '../components/Chatbot.astro'; // Beimportálva a korábbi lépés alapján
+import { getCollection } from 'astro:content';
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+import { getPageAlternates, normalizePath } from '../i18n/routes';
 import '../styles/global.css';
 
-const { title = 'Academic Portfolio' } = Astro.props;
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const section = Astro.url.pathname.split('/')[2] || 'home';
+const descriptions = {
+  home: t('seo.home'),
+  cv: t('seo.cv'),
+  publications: t('seo.publications'),
+  blog: t('seo.blog'),
+};
+const {
+  title,
+  description = descriptions[section as keyof typeof descriptions] ||
+    t('seo.home'),
+} = Astro.props;
+const canonical = new URL(normalizePath(Astro.url.pathname), Astro.site);
+const isPost = /^\/(hu|en)\/blog\/[^/]+\/?$/.test(Astro.url.pathname);
+const alternates = getPageAlternates(
+  Astro.url.pathname,
+  isPost ? await getCollection('blog') : [],
+);
 ---
 
-<html lang="hu">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>{title}</title>
+    <title>{title} | {t('sidebar.name')}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {
+      alternates.map((alternate) => (
+        <link
+          rel="alternate"
+          hreflang={alternate.lang}
+          href={new URL(alternate.path, Astro.site)}
+        />
+      ))
+    }
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body class="bg-white text-slate-900 antialiased min-h-screen relative">
     {/* Globális fejléc és navigáció */}
-    <Header />
+    <Header alternates={alternates} />
 
     {/* Az adott aloldal egyedi tartalma */}
     <slot />
@@ -23,10 +61,7 @@ const { title = 'Academic Portfolio' } = Astro.props;
     <footer
       class="max-w-6xl mx-auto px-6 py-12 border-t mt-12 text-sm text-slate-500"
     >
-      <p>© {new Date().getFullYear()} — Minden jog fenntartva.</p>
+      <p>© {new Date().getFullYear()} — {t('footer.rights')}</p>
     </footer>
-
-    {/* AI Chatbot kliensoldali sziget */}
-    <Chatbot />
   </body>
 </html>
